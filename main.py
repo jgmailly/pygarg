@@ -20,8 +20,19 @@ def negate_model(model):
         negation_clause.append(-literal)
     return negation_clause
 
-def cred_w_adm(args,atts,argname):
-    n_vars, clauses = encoding.conflict_free(args, atts)
+def get_encoding(args, atts, semantics):
+    if semantics == "CF":
+        return encoding.conflict_free(args, atts)
+    if semantics == "AD":
+        return encoding.admissible(args, atts)
+    if semantics == "ST":
+        return encoding.stable(args, atts)
+    if semantics == "CO"
+        return encoding.complete(args, atts)
+    sys.exit(f"Unknown semantics : {semantics}")
+
+def credulous_acceptability(args,atts,argname, semantics):
+    n_vars, clauses = get_encoding(args, atts, semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
 
     s = Solver(name='g4')
@@ -29,38 +40,47 @@ def cred_w_adm(args,atts,argname):
         s.add_clause(clause)
         
     s.add_clause([arg_var])
-
-    while s.solve():
-        model = s.get_model()
-        extension = argset_from_model(model,args)
-        weak_defense = True
-        for attacker in encoding.get_attackers(argname,args,atts):
-            new_args, new_atts = encoding.reduct(args,atts,extension)
-            if (attacker in new_args) and (cred_w_adm(new_args,new_atts,attacker)):
-                s.add_clause(negate_model(model))
-                weak_defense = False
-        if weak_defense:
-            return True
-
-    return False
+    
+    if s.solve():
+        s.delete()
+        return True
     s.delete()
+    return False
+
+def skeptical_acceptability(args,atts,argname, semantics):
+    n_vars, clauses = get_encoding(args, atts, semantics)
+    arg_var = encoding.sat_var_from_arg_name(argname, args)
+
+    s = Solver(name='g4')
+    for clause in clauses:
+        s.add_clause(clause)
+        
+    s.add_clause([-arg_var])
+    
+    if s.solve():
+        s.delete()
+        return False
+    s.delete()
+    return True
 
 
-semantics_list = ["AD_W"]
-problems_list = ["DC"]
+
+semantics_list = ["CF,AD,ST,CO"]
+problems_list = ["DC, DS, SE, EE, CE"]
 formats_list = ["apx"]
-usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> -a <argname> -f <file>\n"
+usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> [-a <argname>] -f <file>\n"
 usage_message+=f"Possible semantics: {semantics_list}\n"
 usage_message+=f"Possible problems: {problems_list}\n"
 usage_message+=f"Possible formats: {formats_list}\n"
 
 
-if len(sys.argv) != 9:
-    sys.exit(usage_message)
 
 argname = sys.argv[6]
 apx_file = sys.argv[8]
-#semantics = sys.argv[2]
+task = sys.argv[2]
+split_task = task.split("-")
+problem = split_task[0]
+semantics = split_task[1]
 
 
 args, atts = parser.parse(apx_file)
