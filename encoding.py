@@ -57,7 +57,7 @@ def conflict_free(args, atts):
     return n_vars, clauses
 
 
-##### Encodes stability
+##### Encodes stable semantics
 def stable(args, atts):
     n_vars, clauses = conflict_free(args, atts)
     for argument in args:
@@ -81,13 +81,35 @@ def pa_vars(args,atts):
     return n_vars, clauses
 
 def defense(args, atts):
-    n_vars, pa_clauses = pa_vars(args, atts)
+    n_vars, clauses = pa_vars(args, atts)
+    for argument in args:
+        for attackers in get_attackers(argument, args, atts):
+            new_clause = [sat_var_Pa_from_arg_name(attacker, args), -sat_var_from_arg_name(argument, args)]
+            clauses.append(new_clause)
+    return n_vars, clauses
     
 
 ### Encodes admissibility
 def admissibility(args, atts):
     n_vars, cf_clauses = conflict_free(args, atts)
     def_clauses = defense(args, atts)[1]
+    return n_vars, cf_clauses + def_clauses
+
+### Encodes complete semantics
+def complete_defense(args, atts):
+    n_vars, clauses = pa_vars(args, atts)
+    for argument in args:
+        long_clause = [sat_var_from_arg_name(argument)]
+        for attackers in get_attackers(argument, args, atts):
+            new_clause = [sat_var_Pa_from_arg_name(attacker, args), -sat_var_from_arg_name(argument, args)]
+            clauses.append(new_clause)
+            long_clause.append(-sat_var_Pa_from_arg_name(attackers, args))
+        clauses.append(long_clause)
+    return n_vars, clauses
+
+def complete(args, atts):
+    n_vars, cf_clauses = conflict_free(args, atts)
+    def_clauses = complete_defense(args, atts)[1]
     return n_vars, cf_clauses + def_clauses
 
 
