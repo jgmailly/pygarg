@@ -27,7 +27,7 @@ def get_encoding(args, atts, semantics):
         return encoding.admissible(args, atts)
     if semantics == "ST":
         return encoding.stable(args, atts)
-    if semantics == "CO"
+    if semantics == "CO":
         return encoding.complete(args, atts)
     sys.exit(f"Unknown semantics : {semantics}")
 
@@ -90,18 +90,18 @@ def extension_counting(args,atts,semantics):
     return len(extension_enumeration(args,atts,semantics))
         
 
-semantics_list = ["CF,AD,ST,CO"]
-problems_list = ["DC, DS, SE, EE, CE"]
+semantics_list = ["CF", "AD", "ST", "CO"]
+problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
-usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> [-a <argname>] -f <file>\n"
+usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> -f <file> [-a <argname>]\n"
 usage_message+=f"Possible semantics: {semantics_list}\n"
 usage_message+=f"Possible problems: {problems_list}\n"
 usage_message+=f"Possible formats: {formats_list}\n"
 
-
-
-argname = sys.argv[6]
-apx_file = sys.argv[8]
+argname = ""
+if len(sys.argv) > 7:
+    argname = sys.argv[8]
+apx_file = sys.argv[6]
 task = sys.argv[2]
 split_task = task.split("-")
 problem = split_task[0]
@@ -131,4 +131,4 @@ elif problem == "CE":
 elif problem == "SE":
     print(compute_some_extension(args,atts,semantics))
 elif problem == "EE":
-    print(extension_enumeration(args,atts,semantics)
+    print(extension_enumeration(args,atts,semantics))

@@ -61,7 +61,7 @@ def conflict_free(args, atts):
 def stable(args, atts):
     n_vars, clauses = conflict_free(args, atts)
     for argument in args:
-        new_clause = [sat_var_from_arg_name(argument)]
+        new_clause = [sat_var_from_arg_name(argument,args)]
         for attacker in get_attackers(argument, args, atts):
             new_clause.append(sat_var_from_arg_name(attacker, args))
         clauses.append(new_clause)
