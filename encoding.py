@@ -8,6 +8,7 @@ import sys
 
 
 ## args[i] -> i+1
+## P(args[i]) -> n + (i+1)
 
 
 # Determines whether arg is attacked by a member of
@@ -27,6 +28,12 @@ def sat_var_from_arg_name(argname, args):
     else:
         sys.exit(f"Unknown argument name: ({argname})")
 
+def sat_var_Pa_from_arg_name(argname, args):
+    if argname in args:
+        return args.index(argname) + 1 + len(args)
+    else:
+        sys.exit(f"Unkown argument name: ({argname})")
+
 # Returns the set of attackers of an argument
 def get_attackers(argument, args, atts):
     attackers = []
@@ -44,10 +51,9 @@ def conflict_free(args, atts):
     for attack in atts:
         attacker = attack[0]
         target = attack[1]
-        if (attacker in args) and (target in args):
-            new_clause = [-sat_var_from_arg_name(attacker, args), -sat_var_from_arg_name(target, args)]
-            clauses.append(new_clause)
-
+        new_clause = [-sat_var_from_arg_name(attacker, args), -sat_var_from_arg_name(target, args)]
+        clauses.append(new_clause)
+            
     return n_vars, clauses
 
 
@@ -57,10 +63,22 @@ def stable(args, atts):
     for argument in args:
         new_clause = [sat_var_from_arg_name(argument)]
         for attacker in get_attackers(argument, args, atts):
-            new_clause.append(sat_var_from_arg_name(attacker))
+            new_clause.append(sat_var_from_arg_name(attacker, args))
         clauses.append(new_clause)
     return n_vars, clauses
 
+#### Encodes defense
+def defense(args,atts):
+    clauses = []
+    n_vars = len(args)
+    for argument in args:
+        long_clause = [-sat_var_Pa_from_arg_name(argument, args)]
+        for attacker in get_attackers(argument, args, atts):
+            new_clause = [sat_var_Pa_from_arg_name(argument, args), -sat_var_from_arg_name(attacker, args)]
+            clauses.append(new_clause)
+            long_clause.append(sat_var_from_arg_name(attacker, args))
+        clauses.append(long_clause)
+    return n_vars, clauses
 
 
 ##### Encoding generation
