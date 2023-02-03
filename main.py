@@ -107,11 +107,28 @@ split_task = task.split("-")
 problem = split_task[0]
 semantics = split_task[1]
 
+if problem not in problems_list:
+    sys.exit(f"Problem {problem} not recognized. Supported problems: {problems_list}.")
+
+if semantics not in semantics_list:
+    sys.exit(f"Semantics {semantics} not recognized. Supported problems: {semantics_list}.")
 
 args, atts = parser.parse(apx_file)
 nb_args = len(args)
-
-if cred_w_adm(args,atts,argname):
-    print("YES")
-else:
-    print("NO")
+    
+if problem == "DC":
+    if credulous_acceptability(args,atts,argname,semantics):
+        print("YES")
+    else:
+        print("NO")
+elif problem == "DS":
+    if skeptically_acceptability(args,atts,argname,semantics):
+        print("YES")
+    else:
+        print("NO")
+elif problem == "CE":
+    print(extension_counting(args,atts,semantics))
+elif problem == "SE":
+    print(compute_some_extension(args,atts,semantics))
+elif problem == "EE":
+    print(extension_enumeration(args,atts,semantics)
