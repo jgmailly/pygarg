@@ -3,7 +3,7 @@ import sys
 ## TO DO
 # 1. Encode admissibility
 # 2. Encode completeness
-# 3. Encode stability
+# 3. Encode stability -> DONE
 # 4. In another module, encode resolution of problems DC, DS, SE, EE, CE
 
 
@@ -51,6 +51,15 @@ def conflict_free(args, atts):
     return n_vars, clauses
 
 
+##### Encodes stability
+def stable(args, atts):
+    n_vars, clauses = conflict_free(args, atts)
+    for argument in args:
+        new_clause = [sat_var_from_arg_name(argument)]
+        for attacker in get_attackers(argument, args, atts):
+            new_clause.append(sat_var_from_arg_name(attacker))
+        clauses.append(new_clause)
+    return n_vars, clauses
 
 
 
