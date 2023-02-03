@@ -68,7 +68,7 @@ def stable(args, atts):
     return n_vars, clauses
 
 #### Encodes defense
-def defense(args,atts):
+def pa_vars(args,atts):
     clauses = []
     n_vars = len(args)
     for argument in args:
@@ -79,6 +79,16 @@ def defense(args,atts):
             long_clause.append(sat_var_from_arg_name(attacker, args))
         clauses.append(long_clause)
     return n_vars, clauses
+
+def defense(args, atts):
+    n_vars, pa_clauses = pa_vars(args, atts)
+    
+
+### Encodes admissibility
+def admissibility(args, atts):
+    n_vars, cf_clauses = conflict_free(args, atts)
+    def_clauses = defense(args, atts)[1]
+    return n_vars, cf_clauses + def_clauses
 
 
 ##### Encoding generation
