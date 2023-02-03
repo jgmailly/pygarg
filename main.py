@@ -63,6 +63,18 @@ def skeptical_acceptability(args,atts,argname,semantics):
     s.delete()
     return True
 
+def compute_some_extension(args,atts,semantics):
+    n_vars, clauses = get_encoding(args, atts,semantics)
+
+    s = Solver(name='g4')
+    if s.solve():
+        model = s.get_model()
+        s.delete()
+        return argset_from_model(model,args)
+
+    return "NO"
+        
+
 def extension_enumeration(args,atts,semantics):
     n_vars, clauses = get_encoding(args, atts,semantics)
     extensions = []
