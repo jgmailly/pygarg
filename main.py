@@ -31,8 +31,8 @@ def get_encoding(args, atts, semantics):
         return encoding.complete(args, atts)
     sys.exit(f"Unknown semantics : {semantics}")
 
-def credulous_acceptability(args,atts,argname, semantics):
-    n_vars, clauses = get_encoding(args, atts, semantics)
+def credulous_acceptability(args,atts,argname,semantics):
+    n_vars, clauses = get_encoding(args, atts,semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
 
     s = Solver(name='g4')
@@ -47,8 +47,8 @@ def credulous_acceptability(args,atts,argname, semantics):
     s.delete()
     return False
 
-def skeptical_acceptability(args,atts,argname, semantics):
-    n_vars, clauses = get_encoding(args, atts, semantics)
+def skeptical_acceptability(args,atts,argname,semantics):
+    n_vars, clauses = get_encoding(args, atts,semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
 
     s = Solver(name='g4')
@@ -63,7 +63,20 @@ def skeptical_acceptability(args,atts,argname, semantics):
     s.delete()
     return True
 
+def extension_enumeration(args,atts,semantics):
+    n_vars, clauses = get_encoding(args, atts,semantics)
+    extensions = []
+    
+    s = Solver(name='g4')
+    for model in s.enum_models():
+        extensions.append(argset_from_model(model,args))
 
+    s.delete()
+    return extensions
+
+def extension_counting(args,atts,semantics):
+    return len(extension_enumeration(args,atts,semantics))
+        
 
 semantics_list = ["CF,AD,ST,CO"]
 problems_list = ["DC, DS, SE, EE, CE"]
