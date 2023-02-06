@@ -24,7 +24,7 @@ def get_encoding(args, atts, semantics):
     if semantics == "CF":
         return encoding.conflict_free(args, atts)
     if semantics == "AD":
-        return encoding.admissible(args, atts)
+        return encoding.admissibility(args, atts)
     if semantics == "ST":
         return encoding.stable(args, atts)
     if semantics == "CO":
@@ -67,6 +67,9 @@ def compute_some_extension(args,atts,semantics):
     n_vars, clauses = get_encoding(args, atts,semantics)
 
     s = Solver(name='g4')
+    for clause in clauses:
+        s.add_clause(clause)
+
     if s.solve():
         model = s.get_model()
         s.delete()
@@ -78,8 +81,11 @@ def compute_some_extension(args,atts,semantics):
 def extension_enumeration(args,atts,semantics):
     n_vars, clauses = get_encoding(args, atts,semantics)
     extensions = []
-    
+
     s = Solver(name='g4')
+    for clause in clauses:
+        s.add_clause(clause)
+    
     for model in s.enum_models():
         extensions.append(argset_from_model(model,args))
 

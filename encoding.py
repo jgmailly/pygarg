@@ -83,7 +83,7 @@ def pa_vars(args,atts):
 def defense(args, atts):
     n_vars, clauses = pa_vars(args, atts)
     for argument in args:
-        for attackers in get_attackers(argument, args, atts):
+        for attacker in get_attackers(argument, args, atts):
             new_clause = [sat_var_Pa_from_arg_name(attacker, args), -sat_var_from_arg_name(argument, args)]
             clauses.append(new_clause)
     return n_vars, clauses
@@ -99,11 +99,11 @@ def admissibility(args, atts):
 def complete_defense(args, atts):
     n_vars, clauses = pa_vars(args, atts)
     for argument in args:
-        long_clause = [sat_var_from_arg_name(argument)]
-        for attackers in get_attackers(argument, args, atts):
+        long_clause = [sat_var_from_arg_name(argument,args)]
+        for attacker in get_attackers(argument, args, atts):
             new_clause = [sat_var_Pa_from_arg_name(attacker, args), -sat_var_from_arg_name(argument, args)]
             clauses.append(new_clause)
-            long_clause.append(-sat_var_Pa_from_arg_name(attackers, args))
+            long_clause.append(-sat_var_Pa_from_arg_name(attacker, args))
         clauses.append(long_clause)
     return n_vars, clauses
 
