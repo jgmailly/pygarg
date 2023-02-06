@@ -1,99 +1,7 @@
 import parser
-import encoding
-import subprocess
+#import subprocess
 import sys
-from pysat.solvers import Solver
-
-def argset_from_model(model,args):
-    extension = []
-    for literal in model:
-        int_literal = int(literal)
-        if int_literal > 0 and int_literal <= nb_args:
-            arg_name = ""
-            arg_name = args[int_literal - 1]
-            extension.append(arg_name)
-    return extension
-
-def negate_model(model):
-    negation_clause = []
-    for literal in model:
-        negation_clause.append(-literal)
-    return negation_clause
-
-def get_encoding(args, atts, semantics):
-    if semantics == "CF":
-        return encoding.conflict_free(args, atts)
-    if semantics == "AD":
-        return encoding.admissibility(args, atts)
-    if semantics == "ST":
-        return encoding.stable(args, atts)
-    if semantics == "CO":
-        return encoding.complete(args, atts)
-    sys.exit(f"Unknown semantics : {semantics}")
-
-def credulous_acceptability(args,atts,argname,semantics):
-    n_vars, clauses = get_encoding(args, atts,semantics)
-    arg_var = encoding.sat_var_from_arg_name(argname, args)
-
-    s = Solver(name='g4')
-    for clause in clauses:
-        s.add_clause(clause)
-        
-    s.add_clause([arg_var])
-    
-    if s.solve():
-        s.delete()
-        return True
-    s.delete()
-    return False
-
-def skeptical_acceptability(args,atts,argname,semantics):
-    n_vars, clauses = get_encoding(args, atts,semantics)
-    arg_var = encoding.sat_var_from_arg_name(argname, args)
-
-    s = Solver(name='g4')
-    for clause in clauses:
-        s.add_clause(clause)
-        
-    s.add_clause([-arg_var])
-    
-    if s.solve():
-        s.delete()
-        return False
-    s.delete()
-    return True
-
-def compute_some_extension(args,atts,semantics):
-    n_vars, clauses = get_encoding(args, atts,semantics)
-
-    s = Solver(name='g4')
-    for clause in clauses:
-        s.add_clause(clause)
-
-    if s.solve():
-        model = s.get_model()
-        s.delete()
-        return argset_from_model(model,args)
-
-    return "NO"
-        
-
-def extension_enumeration(args,atts,semantics):
-    n_vars, clauses = get_encoding(args, atts,semantics)
-    extensions = []
-
-    s = Solver(name='g4')
-    for clause in clauses:
-        s.add_clause(clause)
-    
-    for model in s.enum_models():
-        extensions.append(argset_from_model(model,args))
-
-    s.delete()
-    return extensions
-
-def extension_counting(args,atts,semantics):
-    return len(extension_enumeration(args,atts,semantics))
+import solvers
         
 
 semantics_list = ["CF", "AD", "ST", "CO"]
@@ -123,18 +31,18 @@ args, atts = parser.parse(apx_file)
 nb_args = len(args)
     
 if problem == "DC":
-    if credulous_acceptability(args,atts,argname,semantics):
+    if solvers.credulous_acceptability(args,atts,argname,semantics):
         print("YES")
     else:
         print("NO")
 elif problem == "DS":
-    if skeptically_acceptability(args,atts,argname,semantics):
+    if solvers.skeptically_acceptability(args,atts,argname,semantics):
         print("YES")
     else:
         print("NO")
 elif problem == "CE":
-    print(extension_counting(args,atts,semantics))
+    print(solvers.extension_counting(args,atts,semantics))
 elif problem == "SE":
-    print(compute_some_extension(args,atts,semantics))
+    print(solvers.compute_some_extension(args,atts,semantics))
 elif problem == "EE":
-    print(extension_enumeration(args,atts,semantics))
+    print(solvers.extension_enumeration(args,atts,semantics))
