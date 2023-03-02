@@ -4,7 +4,7 @@ import sys
 import solvers
         
 
-semantics_list = ["CF", "AD", "ST", "CO"]
+semantics_list = ["CF", "AD", "ST", "CO","PR"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
 usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> -f <file> [-a <argname>]\n"
@@ -36,7 +36,7 @@ if problem == "DC":
     else:
         print("NO")
 elif problem == "DS":
-    if solvers.skeptically_acceptability(args,atts,argname,semantics):
+    if solvers.skeptical_acceptability(args,atts,argname,semantics):
         print("YES")
     else:
         print("NO")

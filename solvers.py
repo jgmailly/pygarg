@@ -1,4 +1,6 @@
 from pysat.solvers import Solver
+from pysat.examples.lbx import LBX
+from pysat.formula import WCNF
 import encoding
 
 def argset_from_model(model,args):
@@ -29,6 +31,8 @@ def get_encoding(args, atts, semantics):
     sys.exit(f"Unknown semantics : {semantics}")
 
 def credulous_acceptability(args,atts,argname,semantics):
+    if semantics ==  "PR":
+        semantics = "AD"
     n_vars, clauses = get_encoding(args, atts,semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
 
@@ -44,7 +48,29 @@ def credulous_acceptability(args,atts,argname,semantics):
     s.delete()
     return False
 
+def preferred_skeptical_acceptability(args,atts,argname):
+    n_vars, clauses = get_encoding(args, atts,"AD")
+    arg_var = encoding.sat_var_from_arg_name(argname, args)
+
+    wcnf = WCNF()
+    for clause in clauses:
+        wcnf.append(clause)
+    for argument in args:
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
+        
+
+    lbx = LBX(wcnf, use_cld=True, solver_name='g4')
+    for mcs in lbx.enumerate():
+        lbx.block(mcs)
+        if arg_var in mcs:
+            return False
+
+    return True
+
 def skeptical_acceptability(args,atts,argname,semantics):
+    if semantics == "PR":
+        return preferred_skeptical_acceptability(args,atts,argname)
+    
     n_vars, clauses = get_encoding(args, atts,semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
 
@@ -60,7 +86,24 @@ def skeptical_acceptability(args,atts,argname,semantics):
     s.delete()
     return True
 
+def compute_some_preferred_extension(args,atts):
+    n_vars, clauses = get_encoding(args, atts,"AD")
+
+    wcnf = WCNF()
+    for clause in clauses:
+        wcnf.append(clause)
+    for argument in args:
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
+        
+
+    lbx = LBX(wcnf, use_cld=True, solver_name='g4')
+    return argset_from_model(get_mss_from_mcs(lbx.compute(),args),args)
+    
+
 def compute_some_extension(args,atts,semantics):
+    if semantics == "PR":
+        return compute_some_preferred_extension(args,atts)
+    
     n_vars, clauses = get_encoding(args, atts,semantics)
 
     s = Solver(name='g4')
@@ -73,9 +116,36 @@ def compute_some_extension(args,atts,semantics):
         return argset_from_model(model,args)
 
     return "NO"
+
+def get_mss_from_mcs(mcs,args):
+    mss = []
+    for arg in args:
+        if encoding.sat_var_from_arg_name(arg,args) not in mcs:
+            mss.append(encoding.sat_var_from_arg_name(arg,args))
+    return mss
+
+def preferred_extension_enumeration(args,atts):
+    n_vars, clauses = get_encoding(args, atts,"AD")
+    
+    wcnf = WCNF()
+    for clause in clauses:
+        wcnf.append(clause)
+    for argument in args:
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
+        
+
+    lbx = LBX(wcnf, use_cld=True, solver_name='g4')
+    extensions = []
+    for mcs in lbx.enumerate():
+        lbx.block(mcs)
+        extensions.append(argset_from_model(get_mss_from_mcs(mcs,args),args))
+
+    return extensions
         
 
 def extension_enumeration(args,atts,semantics):
+    if semantics == "PR":
+        return preferred_extension_enumeration(args,atts)
     n_vars, clauses = get_encoding(args, atts,semantics)
     extensions = []
 
