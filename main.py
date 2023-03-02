@@ -1,10 +1,10 @@
 import parser
-#import subprocess
+import time
 import sys
 import solvers
         
 
-semantics_list = ["CF", "AD", "ST", "CO","PR"]
+semantics_list = ["CF", "AD", "ST", "CO","PR","GR"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
 usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> -f <file> [-a <argname>]\n"
@@ -21,25 +21,51 @@ split_task = task.split("-")
 problem = split_task[0]
 semantics = split_task[1]
 
+verbose = False
+if "-v" in sys.argv or "--verbose" in sys.argv:
+    verbose = True
+
 if problem not in problems_list:
     sys.exit(f"Problem {problem} not recognized. Supported problems: {problems_list}.")
 
 if semantics not in semantics_list:
     sys.exit(f"Semantics {semantics} not recognized. Supported problems: {semantics_list}.")
 
+time_start_parsing = time.time()
 args, atts = parser.parse(apx_file)
+time_end_parsing = time.time()
+duration_parsing = time_end_parsing - time_start_parsing
 nb_args = len(args)
+
+if semantics == "GR":
+    sys.exit("Grounded semantics is not supported yet.")
     
 if problem == "DC":
-    if solvers.credulous_acceptability(args,atts,argname,semantics):
-        print("YES")
+    time_start_solving = time.time()
+    result = solvers.credulous_acceptability(args,atts,argname,semantics)
+    time_end_solving = time.time()
+    duration_solving = time_end_solving - time_start_solving
+    if result :
+        print("YES",end='')
     else:
-        print("NO")
+        print("NO",end='')
+    if verbose:
+        print(f",{duration_parsing},{duration_solving}")
+    else:
+        print("")
 elif problem == "DS":
-    if solvers.skeptical_acceptability(args,atts,argname,semantics):
-        print("YES")
+    time_start_solving = time.time()
+    result = solvers.skeptical_acceptability(args,atts,argname,semantics)
+    time_end_solving = time.time()
+    duration_solving = time_end_solving - time_start_solving
+    if result:
+        print("YES",end='')
     else:
-        print("NO")
+        print("NO",end='')
+    if verbose:
+        print(f",{duration_parsing},{duration_solving}")
+    else:
+        print("")
 elif problem == "CE":
     print(solvers.extension_counting(args,atts,semantics))
 elif problem == "SE":

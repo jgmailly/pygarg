@@ -97,13 +97,47 @@ def compute_some_preferred_extension(args,atts):
         
 
     lbx = LBX(wcnf, use_cld=True, solver_name='g4')
-    return argset_from_model(get_mss_from_mcs(lbx.compute(),args),args)
-    
+    result = argset_from_model(get_mss_from_mcs(lbx.compute(),args),args)
+    lbx.delete()
+    return result
+
+def get_unattacked_arguments(args,atts):
+    unattacked = []
+
+    for arg in args:
+        is_unattacked=True
+        for attack in atts:
+            if attack[1] == arg:
+                is_unattacked = False
+        if is_unattacked:
+            unattacked.append(encoding.sat_var_from_arg_name(arg,args))
+
+    return unattacked
+        
+
+def compute_grounded_extension(args,atts):
+    n_vars, clauses = get_encoding(args, atts,"CO")
+
+    s = Solver(name='g4')
+    for clause in clauses:
+        s.add_clause(clause)
+
+    print(f"clauses = {clauses}")
+
+    assump = get_unattacked_arguments(args,atts)
+    print(f"assumptions = {assump}")
+    status, model = s.propagate(assumptions = assump)
+    print(f"model = {model} - status = {status}")
+    s.delete()
+    return argset_from_model(model,args)
 
 def compute_some_extension(args,atts,semantics):
     if semantics == "PR":
         return compute_some_preferred_extension(args,atts)
-    
+
+    if semantics == "GR":
+        return compute_grounded_extension(args,atts)
+        
     n_vars, clauses = get_encoding(args, atts,semantics)
 
     s = Solver(name='g4')
