@@ -45,6 +45,8 @@ if problem == "DC":
     result = solvers.credulous_acceptability(args,atts,argname,semantics)
     time_end_solving = time.time()
     duration_solving = time_end_solving - time_start_solving
+    if verbose:
+        print(f"{apx_file},{task},",end='')
     if result :
         print("YES",end='')
     else:
@@ -58,6 +60,8 @@ elif problem == "DS":
     result = solvers.skeptical_acceptability(args,atts,argname,semantics)
     time_end_solving = time.time()
     duration_solving = time_end_solving - time_start_solving
+    if verbose:
+        print(f"{apx_file},{task},",end='')
     if result:
         print("YES",end='')
     else:
