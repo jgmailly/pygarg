@@ -207,6 +207,8 @@ def preferred_extension_enumeration(args,atts):
 def extension_enumeration(args,atts,semantics):
     if semantics == "PR":
         return preferred_extension_enumeration(args,atts)
+    if semantics == "ID":
+        return [compute_ideal_extension(args,atts)]
     n_vars, clauses = get_encoding(args, atts,semantics)
     extensions = []
 
@@ -221,6 +223,8 @@ def extension_enumeration(args,atts,semantics):
     return extensions
 
 def extension_counting(args,atts,semantics):
+    if semantics == "ID":
+        return 1
     return len(extension_enumeration(args,atts,semantics))
 
 
