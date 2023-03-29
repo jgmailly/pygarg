@@ -49,6 +49,15 @@ def credulous_acceptability(args,atts,argname,semantics):
     s.delete()
     return False, None
 
+def get_preferred_extension_from_mcs(args, mcs):
+    extension = []
+    for argname in args:
+        arg_var = encoding.sat_var_from_arg_name(argname, args)
+        if arg_var not in mcs:
+            extension.append(argname)
+
+    return extension
+
 def preferred_skeptical_acceptability(args,atts,argname):
     n_vars, clauses = get_encoding(args, atts,"AD")
     arg_var = encoding.sat_var_from_arg_name(argname, args)
@@ -64,9 +73,9 @@ def preferred_skeptical_acceptability(args,atts,argname):
     for mcs in lbx.enumerate():
         lbx.block(mcs)
         if arg_var in mcs:
-            return False
+            return False, get_preferred_extension_from_mcs(args, mcs)
 
-    return True
+    return True, None
 
 def skeptical_acceptability(args,atts,argname,semantics):
     if semantics == "PR":

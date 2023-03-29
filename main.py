@@ -89,19 +89,18 @@ if problem == "DC":
         print(f",{duration_parsing},{duration_solving}")
 elif problem == "DS":
     time_start_solving = time.time()
-    result = solvers.skeptical_acceptability(args,atts,argname,semantics)
+    result, extension = solvers.skeptical_acceptability(args,atts,argname,semantics)
     time_end_solving = time.time()
     duration_solving = time_end_solving - time_start_solving
     if verbose:
         print(f"{apx_file},{task},",end='')
-    if result:
-        print("YES",end='')
+    if result :
+        print("YES")
     else:
-        print("NO",end='')
+        print("NO")
+        solvers.print_witness_extension(extension)
     if verbose:
         print(f",{duration_parsing},{duration_solving}")
-    else:
-        print("")
 elif problem == "CE":
     print(solvers.extension_counting(args,atts,semantics))
 elif problem == "SE":
