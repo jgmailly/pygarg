@@ -31,6 +31,13 @@ def get_encoding(args, atts, semantics):
     sys.exit(f"Unknown semantics : {semantics}")
 
 def credulous_acceptability(args,atts,argname,semantics):
+    if semantics == "ID":
+        id_extension = compute_ideal_extension(args, atts)
+        if argname in id_extension:
+            return True, id_extension
+        else:
+            return False, id_extension
+    
     if semantics ==  "PR":
         semantics = "AD"
     n_vars, clauses = get_encoding(args, atts,semantics)
@@ -49,14 +56,6 @@ def credulous_acceptability(args,atts,argname,semantics):
     s.delete()
     return False, None
 
-def get_preferred_extension_from_mcs(args, mcs):
-    extension = []
-    for argname in args:
-        arg_var = encoding.sat_var_from_arg_name(argname, args)
-        if arg_var not in mcs:
-            extension.append(argname)
-
-    return extension
 
 def preferred_skeptical_acceptability(args,atts,argname):
     n_vars, clauses = get_encoding(args, atts,"AD")
@@ -73,29 +72,10 @@ def preferred_skeptical_acceptability(args,atts,argname):
     for mcs in lbx.enumerate():
         lbx.block(mcs)
         if arg_var in mcs:
-            return False, get_preferred_extension_from_mcs(args, mcs)
+            return False, argset_from_model(get_mss_from_mcs(mcs,args),args)
 
     return True, None
 
-def skeptical_acceptability(args,atts,argname,semantics):
-    if semantics == "PR":
-        return preferred_skeptical_acceptability(args,atts,argname)
-    
-    n_vars, clauses = get_encoding(args, atts,semantics)
-    arg_var = encoding.sat_var_from_arg_name(argname, args)
-
-    s = Solver(name='g4')
-    for clause in clauses:
-        s.add_clause(clause)
-        
-    s.add_clause([-arg_var])
-    
-    if s.solve():
-        model = s.get_model()
-        s.delete()
-        return False, argset_from_model(model,args)
-    s.delete()
-    return True, None
 
 def compute_some_preferred_extension(args,atts):
     n_vars, clauses = get_encoding(args, atts,"AD")
@@ -142,12 +122,48 @@ def compute_grounded_extension(args,atts):
     s.delete()
     return argset_from_model(model,args)
 
+def intersection(lst1, lst2):
+    return list(set(lst1) & set(lst2))
+
+def intersection_all(args, extensions):
+    result = args
+    for extension in extensions:
+        result = intersection(result, extension)
+    return result
+
+def compute_ideal_extension(args, atts):
+    preferred_extensions = extension_enumeration(args, atts, "PR")
+
+    skeptical_pr_arguments = intersection_all(args, preferred_extensions)
+
+    n_vars, clauses = get_encoding(args, atts,"AD")
+
+    for arg in args:
+        if arg not in skeptical_pr_arguments:
+            clauses.append([-encoding.sat_var_from_arg_name(arg, args)])
+
+    wcnf = WCNF()
+    for clause in clauses:
+        wcnf.append(clause)
+    for argument in args:
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
+        
+
+    lbx = LBX(wcnf, use_cld=True, solver_name='g4')
+    result = argset_from_model(get_mss_from_mcs(lbx.compute(),args),args)
+    lbx.delete()
+    return result
+
+
 def compute_some_extension(args,atts,semantics):
     if semantics == "PR":
         return compute_some_preferred_extension(args,atts)
 
     if semantics == "GR":
         return compute_grounded_extension(args,atts)
+
+    if semantics == "ID":
+        return compute_ideal_extension(args,atts)
         
     n_vars, clauses = get_encoding(args, atts,semantics)
 
@@ -213,3 +229,31 @@ def print_witness_extension(extension):
     for argname in extension:
         print(f"{argname} ", end = '')
     print("")
+
+
+def skeptical_acceptability(args,atts,argname,semantics):
+    if semantics == "PR":
+        return preferred_skeptical_acceptability(args,atts,argname)
+
+    if semantics == "ID":
+        id_extension = compute_ideal_extension(args, atts)
+        if argname in id_extension:
+            return True, id_extension
+        else:
+            return False, id_extension
+    
+    n_vars, clauses = get_encoding(args, atts,semantics)
+    arg_var = encoding.sat_var_from_arg_name(argname, args)
+
+    s = Solver(name='g4')
+    for clause in clauses:
+        s.add_clause(clause)
+        
+    s.add_clause([-arg_var])
+    
+    if s.solve():
+        model = s.get_model()
+        s.delete()
+        return False, argset_from_model(model,args)
+    s.delete()
+    return True, None

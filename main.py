@@ -9,7 +9,7 @@ import argparse
 if len(sys.argv) == 1:
     sys.exit("pygarg v1.0\nJean-Guy Mailly, jean-guy.mailly@u-paris.fr")
 
-semantics_list = ["CF", "AD", "ST", "CO","PR","GR"]
+semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
 
@@ -85,6 +85,8 @@ if problem == "DC":
         solvers.print_witness_extension(extension)
     else:
         print("NO")
+        if extension != None:
+            solvers.print_witness_extension(extension)
     if verbose:
         print(f",{duration_parsing},{duration_solving}")
 elif problem == "DS":
@@ -96,6 +98,8 @@ elif problem == "DS":
         print(f"{apx_file},{task},",end='')
     if result :
         print("YES")
+        if extension != None:
+            solvers.print_witness_extension(extension)
     else:
         print("NO")
         solvers.print_witness_extension(extension)
