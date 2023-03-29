@@ -43,10 +43,11 @@ def credulous_acceptability(args,atts,argname,semantics):
     s.add_clause([arg_var])
     
     if s.solve():
+        model = s.get_model()
         s.delete()
-        return True
+        return True, argset_from_model(model,args)
     s.delete()
-    return False
+    return False, None
 
 def preferred_skeptical_acceptability(args,atts,argname):
     n_vars, clauses = get_encoding(args, atts,"AD")
@@ -81,10 +82,11 @@ def skeptical_acceptability(args,atts,argname,semantics):
     s.add_clause([-arg_var])
     
     if s.solve():
+        model = s.get_model()
         s.delete()
-        return False
+        return False, argset_from_model(model,args)
     s.delete()
-    return True
+    return True, None
 
 def compute_some_preferred_extension(args,atts):
     n_vars, clauses = get_encoding(args, atts,"AD")
@@ -195,3 +197,10 @@ def extension_enumeration(args,atts,semantics):
 
 def extension_counting(args,atts,semantics):
     return len(extension_enumeration(args,atts,semantics))
+
+
+def print_witness_extension(extension):
+    print("w ", end='')
+    for argname in extension:
+        print(f"{argname} ", end = '')
+    print("")

@@ -75,19 +75,18 @@ if semantics == "GR":
     
 if problem == "DC":
     time_start_solving = time.time()
-    result = solvers.credulous_acceptability(args,atts,argname,semantics)
+    result, extension = solvers.credulous_acceptability(args,atts,argname,semantics)
     time_end_solving = time.time()
     duration_solving = time_end_solving - time_start_solving
     if verbose:
         print(f"{apx_file},{task},",end='')
     if result :
-        print("YES",end='')
+        print("YES")
+        solvers.print_witness_extension(extension)
     else:
-        print("NO",end='')
+        print("NO")
     if verbose:
         print(f",{duration_parsing},{duration_solving}")
-    else:
-        print("")
 elif problem == "DS":
     time_start_solving = time.time()
     result = solvers.skeptical_acceptability(args,atts,argname,semantics)
@@ -106,6 +105,11 @@ elif problem == "DS":
 elif problem == "CE":
     print(solvers.extension_counting(args,atts,semantics))
 elif problem == "SE":
-    print(solvers.compute_some_extension(args,atts,semantics))
+    #print(solvers.compute_some_extension(args,atts,semantics))
+    extension = solvers.compute_some_extension(args,atts,semantics)
+    if extension == "NO":
+        print("NO")
+    else:
+        solvers.print_witness_extension(extension)
 elif problem == "EE":
     print(solvers.extension_enumeration(args,atts,semantics))
