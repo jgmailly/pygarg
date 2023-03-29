@@ -2,27 +2,60 @@ import parser
 import time
 import sys
 import solvers
-        
+
+import argparse
+
+
+if len(sys.argv) == 1:
+    sys.exit("pygarg v1.0\nJean-Guy Mailly, jean-guy.mailly@u-paris.fr")
 
 semantics_list = ["CF", "AD", "ST", "CO","PR","GR"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
-usage_message=f"Usage: python3 main.py -p <problem>-<semantics> -fo <format> -f <file> [-a <argname>]\n"
-usage_message+=f"Possible semantics: {semantics_list}\n"
-usage_message+=f"Possible problems: {problems_list}\n"
-usage_message+=f"Possible formats: {formats_list}\n"
 
+def print_supported_problems():
+    print("[", end='')
+    for problem in problems_list:
+        for semantics in semantics_list:
+            print(f"{problem}-{semantics}", end='')
+            if problem != problems_list[-1] or semantics != semantics_list[-1]:
+                print(",", end='')
+    print("]")
+
+argparser = argparse.ArgumentParser(prog='pygarg', description='A Python enGine for Argumentation: this program solves most classical problems in abstract argumentation, mainly thanks to calls to SAT solvers.')
+argparser.add_argument("-p", "--problem", help=f"describes the problem to solve. Must be XX-YY with XX in {problems_list} and YY in {semantics_list}.")
+argparser.add_argument("-fo", "--format", help=f"format of the input file. Must be in {formats_list}.", default="apx")
+argparser.add_argument("-pr", "--problems", help="prints the list of supported problems.", action="store_true")
+argparser.add_argument("-v", "--verbose", help="increase output verbosity.", action="store_true")
+argparser.add_argument("-f", "--filename", help=f"the input file describing an AF.")
+argparser.add_argument("-a", "--argname", help=f"name of the query argument for acceptability problems.")
+cli_args = argparser.parse_args()
+
+if cli_args.problems:
+    print_supported_problems()
+    sys.exit()
+
+if not cli_args.filename:
+    sys.exit("Missing file name.")
+
+if not cli_args.problem:
+    sys.exit("Missing problem name.")
+    
 argname = ""
-if len(sys.argv) > 7:
-    argname = sys.argv[8]
-apx_file = sys.argv[6]
-task = sys.argv[2]
+if cli_args.argname:
+    argname = cli_args.argname
+
+apx_file = cli_args.filename
+task = cli_args.problem
 split_task = task.split("-")
 problem = split_task[0]
 semantics = split_task[1]
 
+if (problem == "DC" or problem == "DS") and argname == "":
+    sys.exit(f"Missing argument name for problem {problem}.")
+
 verbose = False
-if "-v" in sys.argv or "--verbose" in sys.argv:
+if cli_args.verbose :
     verbose = True
 
 if problem not in problems_list:
