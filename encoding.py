@@ -1,14 +1,10 @@
 import sys
 
-## TO DO
-# 1. Encode admissibility
-# 2. Encode completeness
-# 3. Encode stability -> DONE
-# 4. In another module, encode resolution of problems DC, DS, SE, EE, CE
 
 
 ## args[i] -> i+1
-## P(args[i]) -> n + (i+1)
+## P(args[i]) -> n + (i+1) : means that one attacker of args[i] is in the extension
+## Q(args[i]) -> 2n + (i+1) : means that args[i] is in the range of the extension
 
 
 # Determines whether arg is attacked by a member of
@@ -34,6 +30,12 @@ def sat_var_Pa_from_arg_name(argname, args):
     else:
         sys.exit(f"Unkown argument name: ({argname})")
 
+def sat_var_Qa_from_arg_name(argname, args):
+    if argname in args:
+        return args.index(argname) + 1 + 2 * len(args)
+    else:
+        sys.exit(f"Unkown argument name: ({argname})")
+
 # Returns the set of attackers of an argument
 def get_attackers(argument, args, atts):
     attackers = []
@@ -42,6 +44,19 @@ def get_attackers(argument, args, atts):
             attackers.append(attack[0])
     return attackers
 
+#### Encodes range variables
+def encode_range_variables(args, atts):
+    clauses = []
+    n_vars = len(args) * 3
+    for argument in args:
+        clauses.append([-sat_var_from_arg_name(argument, args), sat_var_Qa_from_arg_name(argument, args)])
+        long_clause = [-sat_var_Qa_from_arg_name(argument, args), sat_var_from_arg_name(argument, args)]
+        for attacker in args:
+            if [attacker, argument] in atts:
+                clauses.append([-sat_var_from_arg_name(attacker, args), sat_var_Qa_from_arg_name(argument, args)])
+                long_clause.append(sat_var_from_arg_name(attacker, args))
+        clauses.append(long_clause)
+    return clauses
 
 
 ##### Encodes conflict-freeness
@@ -70,7 +85,7 @@ def stable(args, atts):
 #### Encodes defense
 def pa_vars(args,atts):
     clauses = []
-    n_vars = len(args)
+    n_vars = len(args)*2
     for argument in args:
         long_clause = [-sat_var_Pa_from_arg_name(argument, args)]
         for attacker in get_attackers(argument, args, atts):
