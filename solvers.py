@@ -154,6 +154,49 @@ def compute_ideal_extension(args, atts):
     lbx.delete()
     return result
 
+def get_range_mss_from_mcs(mcs,args):
+    mss = []
+    for arg in args:
+        if encoding.sat_var_Qa_from_arg_name(arg,args) not in mcs:
+            mss.append(encoding.sat_var_Qa_from_arg_name(arg,args))
+    return mss
+
+def get_extension_from_range(mcs, args):
+    print(f"mcs = {mcs}")
+    mss = get_range_mss_from_mcs(mcs, args)
+    print(f"mss = {mss}")
+    extension = []
+    for arg in args:
+        if encoding.sat_var_from_arg_name(arg,args) in mss:
+            extension.append(arg)
+    print(f"extension = {extension}")
+    return extension
+
+####### MODIFY THE ENCODING FOR SST
+# Instead of Qa for ''a is in E^\oplus'', it should be ''a is in E^+''
+# The soft clauses should be all a variables + all Qa variables
+# Then, we can get the extension from the a variables in the MCS
+
+def compute_some_semistable_extension(args, atts):
+    n_vars, clauses = get_encoding(args, atts,"CO")
+    print(f"CO clauses = {clauses}")
+    n_vars, range_clauses = encoding.encode_range_variables(args, atts)
+    print(f"range clauses = {range_clauses}")
+    clauses += range_clauses
+
+    wcnf = WCNF()
+    for clause in clauses:
+        wcnf.append(clause)
+    for argument in args:
+        wcnf.append([encoding.sat_var_Qa_from_arg_name(argument, args)], weight=1)
+        
+
+    lbx = LBX(wcnf, use_cld=True, solver_name='g4')
+#    result = argset_from_model(get_mss_from_mcs(lbx.compute(),args),args)
+    result = get_extension_from_range(lbx.compute(),args)
+    lbx.delete()
+    return result
+
 
 def compute_some_extension(args,atts,semantics):
     if semantics == "PR":
@@ -164,6 +207,9 @@ def compute_some_extension(args,atts,semantics):
 
     if semantics == "ID":
         return compute_ideal_extension(args,atts)
+
+    if semantics == "SST":
+        return compute_some_semistable_extension(args, atts)
         
     n_vars, clauses = get_encoding(args, atts,semantics)
 

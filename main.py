@@ -9,7 +9,7 @@ import argparse
 if len(sys.argv) == 1:
     sys.exit("pygarg v1.0\nJean-Guy Mailly, jean-guy.mailly@u-paris.fr")
 
-semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID"]
+semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID", "SST"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
 formats_list = ["apx"]
 

@@ -56,7 +56,7 @@ def encode_range_variables(args, atts):
                 clauses.append([-sat_var_from_arg_name(attacker, args), sat_var_Qa_from_arg_name(argument, args)])
                 long_clause.append(sat_var_from_arg_name(attacker, args))
         clauses.append(long_clause)
-    return clauses
+    return n_vars, clauses
 
 
 ##### Encodes conflict-freeness
