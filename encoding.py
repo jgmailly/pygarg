@@ -44,19 +44,6 @@ def get_attackers(argument, args, atts):
             attackers.append(attack[0])
     return attackers
 
-#### Encodes range variables
-def encode_range_variables(args, atts):
-    clauses = []
-    n_vars = len(args) * 3
-    for argument in args:
-        clauses.append([-sat_var_from_arg_name(argument, args), sat_var_Qa_from_arg_name(argument, args)])
-        long_clause = [-sat_var_Qa_from_arg_name(argument, args), sat_var_from_arg_name(argument, args)]
-        for attacker in args:
-            if [attacker, argument] in atts:
-                clauses.append([-sat_var_from_arg_name(attacker, args), sat_var_Qa_from_arg_name(argument, args)])
-                long_clause.append(sat_var_from_arg_name(attacker, args))
-        clauses.append(long_clause)
-    return n_vars, clauses
 
 
 ##### Encodes conflict-freeness
