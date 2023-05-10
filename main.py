@@ -1,4 +1,5 @@
-import parser
+import apx_parser
+import dimacs_parser
 import time
 import sys
 import solvers
@@ -11,7 +12,7 @@ if len(sys.argv) == 1:
 
 semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID", "SST"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
-formats_list = ["apx"]
+formats_list = ["apx","dimacs"]
 
 def print_supported_problems():
     print("[", end='')
@@ -24,7 +25,7 @@ def print_supported_problems():
 
 argparser = argparse.ArgumentParser(prog='pygarg', description='A Python enGine for Argumentation: this program solves most classical problems in abstract argumentation, mainly thanks to calls to SAT solvers.')
 argparser.add_argument("-p", "--problem", help=f"describes the problem to solve. Must be XX-YY with XX in {problems_list} and YY in {semantics_list}.")
-argparser.add_argument("-fo", "--format", help=f"format of the input file. Must be in {formats_list}.", default="apx")
+argparser.add_argument("-fo", "--format", help=f"format of the input file. Must be in {formats_list}.", default="dimacs")
 argparser.add_argument("-pr", "--problems", help="prints the list of supported problems.", action="store_true")
 argparser.add_argument("-v", "--verbose", help="increase output verbosity.", action="store_true")
 argparser.add_argument("-f", "--filename", help=f"the input file describing an AF.")
@@ -45,7 +46,7 @@ argname = ""
 if cli_args.argname:
     argname = cli_args.argname
 
-apx_file = cli_args.filename
+af_file = cli_args.filename
 task = cli_args.problem
 split_task = task.split("-")
 problem = split_task[0]
@@ -65,7 +66,11 @@ if semantics not in semantics_list:
     sys.exit(f"Semantics {semantics} not recognized. Supported problems: {semantics_list}.")
 
 time_start_parsing = time.time()
-args, atts = parser.parse(apx_file)
+args, atts = [],[]
+if cli_args.format == "apx":
+    args, atts = apx_parser.parse(af_file)
+elif cli_args.format == "dimacs":
+    args, atts = dimacs_parser.parse(af_file)
 time_end_parsing = time.time()
 duration_parsing = time_end_parsing - time_start_parsing
 nb_args = len(args)
