@@ -294,27 +294,49 @@ def preferred_extension_enumeration(args,atts):
     return extensions
 
 
+def get_semistable_extensions_from_MCS(args, atts, mcs, hard_clauses, soft_clauses):
+    extensions = []
+
+    # Get MSS from MCS
+    mss = []
+    for clause_index in range(1,len(soft_clauses)+1):
+        if clause_index not in mcs:
+            mss.append(clause_index)
+
+    # Add the soft clauses from the MSS to the set of hard clauses
+    for clause_index in mss:
+        hard_clauses.append(soft_clauses[clause_index-1])
+
+    s = Solver(name='g4')
+    for clause in hard_clauses:
+        s.add_clause(clause)
+    
+    for model in s.enum_models():
+        #print(f"model = {model}")
+        extensions.append(argset_from_model(model,args))
+        
+    return extensions
+
 def semistable_extension_enumeration(args, atts):
     n_vars, clauses = get_encoding(args, atts,"CO")
-#    n_vars, range_clauses = encoding.encode_range_variables(args, atts)
-#    clauses += range_clauses
 
+    soft_clauses = []
     wcnf = WCNF()
     for clause in clauses:
         wcnf.append(clause)
     for argument in args:
         wcnf.append([encoding.sat_var_from_arg_name(argument, args),encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
-#        wcnf.append([encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
+        soft_clauses.append([encoding.sat_var_from_arg_name(argument, args), encoding.sat_var_Pa_from_arg_name(argument, args)])
         
 
     lbx = LBX(wcnf, use_cld=True, solver_name='g4')
     extensions = []
     for mcs in lbx.enumerate():
         lbx.block(mcs)
-        extensions.append(get_extension_from_range(mcs,args))
-        print(f"THERE IS A PROBLEM - {get_extension_from_range(mcs,args)}")
+        extensions += get_semistable_extensions_from_MCS(args, atts, mcs, clauses, soft_clauses)
     
     lbx.delete()
+    
     return extensions
 
 def extension_enumeration(args,atts,semantics):
