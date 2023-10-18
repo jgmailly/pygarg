@@ -54,6 +54,9 @@ def credulous_acceptability(args,atts,argname,semantics):
             return True, gr_extension
         else:
             return False, gr_extension
+
+    if semantics == "SST":
+        return semistable_credulous_acceptability(args, atts, argname)
     
     if semantics ==  "PR":
         semantics = "AD"
@@ -339,6 +342,22 @@ def semistable_extension_enumeration(args, atts):
     
     return extensions
 
+def semistable_skeptical_acceptability(args,atts,argname):
+    extensions = semistable_extension_enumeration(args, atts)
+    for extension in extensions:
+        if argname not in extension:
+            return False, extension
+
+    return True, None
+
+def semistable_credulous_acceptability(args,atts,argname):
+    extensions = semistable_extension_enumeration(args, atts)
+    for extension in extensions:
+        if argname in extension:
+            return True, extension
+
+    return False, None
+
 def extension_enumeration(args,atts,semantics):
     if semantics == "PR":
         return preferred_extension_enumeration(args,atts)
@@ -356,7 +375,6 @@ def extension_enumeration(args,atts,semantics):
         s.add_clause(clause)
     
     for model in s.enum_models():
-        #print(f"model = {model}")
         extensions.append(argset_from_model(model,args))
 
     s.delete()
@@ -378,6 +396,9 @@ def print_witness_extension(extension):
 def skeptical_acceptability(args,atts,argname,semantics):
     if semantics == "PR":
         return preferred_skeptical_acceptability(args,atts,argname)
+
+    if semantics == "SST":
+        return semistable_skeptical_acceptability(args, atts, argname)
 
     if semantics == "ID":
         id_extension = compute_ideal_extension(args, atts)
