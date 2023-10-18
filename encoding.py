@@ -44,6 +44,19 @@ def get_attackers(argument, args, atts):
             attackers.append(attack[0])
     return attackers
 
+# Returns clauses used to define the meaning of the range variables
+# For each a, Qa <-> a or Pa. In clauses:
+# (-Qa or a or Pa), (-a or Qa), (-Pa or Qa)
+def encode_range_variables(args, atts):
+    clauses = []
+
+    for arg in args:
+        clauses.append([-sat_var_Qa_from_arg_name(arg, args), sat_var_from_arg_name(arg, args), sat_var_Pa_from_arg_name(arg, args)])
+        clauses.append([-sat_var_from_arg_name(arg, args), sat_var_Qa_from_arg_name(arg, args)])
+        clauses.append([-sat_var_Pa_from_arg_name(arg, args), sat_var_Qa_from_arg_name(arg, args)])
+
+    return 3*len(args), clauses
+
 
 
 ##### Encodes conflict-freeness

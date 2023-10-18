@@ -1,7 +1,9 @@
 import sys 
 from pysat.solvers import Solver
 from pysat.examples.lbx import LBX
+from pysat.examples.mcsls import MCSls
 from pysat.formula import WCNF
+from pysat.formula import CNF
 import encoding
 
 def get_attackers(args,atts,arg):
@@ -36,7 +38,7 @@ def get_encoding(args, atts, semantics):
         return encoding.stable(args, atts)
     if semantics == "CO":
         return encoding.complete(args, atts)
-    sys.exit(f"Unknown semantics : {semantics}")
+    sys.exit(f"No SAT encoding for the semantics : {semantics}")
 
 def credulous_acceptability(args,atts,argname,semantics):
     if semantics == "ID":
@@ -107,18 +109,6 @@ def compute_some_preferred_extension(args,atts):
     lbx.delete()
     return result
 
-def get_unattacked_arguments_as_sat_variables(args,atts):
-    unattacked = []
-
-    for arg in args:
-        is_unattacked=True
-        for attack in atts:
-            if attack[1] == arg:
-                is_unattacked = False
-        if is_unattacked:
-            unattacked.append(encoding.sat_var_from_arg_name(arg,args))
-
-    return unattacked
 
 def get_unattacked_arguments(args,atts):
     unattacked = []
@@ -212,25 +202,44 @@ def get_extension_from_range(mcs, args):
             extension.append(arg)
     return extension
 
-
-
 def compute_some_semistable_extension(args, atts):
     n_vars, clauses = get_encoding(args, atts,"CO")
-    n_vars, range_clauses = encoding.encode_range_variables(args, atts)
-    clauses += range_clauses
+
+    soft_clauses = []
 
     wcnf = WCNF()
+    cnf = CNF()
     for clause in clauses:
+        cnf.append(clause)
         wcnf.append(clause)
     for argument in args:
-        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
-        wcnf.append([encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
-        
-
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args), encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
+        soft_clauses.append([encoding.sat_var_from_arg_name(argument, args), encoding.sat_var_Pa_from_arg_name(argument, args)])
+    
     lbx = LBX(wcnf, use_cld=True, solver_name='g4')
-    result = get_extension_from_range(lbx.compute(),args)
+    mcs = lbx.compute()
     lbx.delete()
-    return result
+
+    mss = []
+    for clause_index in range(1,len(soft_clauses)+1):
+        if clause_index not in mcs:
+            mss.append(clause_index)
+            
+    for clause_index in mss:
+        cnf.append(soft_clauses[clause_index-1])
+
+    s = Solver(name='g4')
+    for clause in cnf.clauses:
+        s.add_clause(clause)
+
+    if s.solve():
+        model = s.get_model()
+        s.delete()
+        return argset_from_model(model,args)
+
+    s.delete()
+    sys.exit("There cannot be no semi-stable extension.")
+    
 
 
 def compute_some_extension(args,atts,semantics):
@@ -294,8 +303,8 @@ def semistable_extension_enumeration(args, atts):
     for clause in clauses:
         wcnf.append(clause)
     for argument in args:
-        wcnf.append([encoding.sat_var_from_arg_name(argument, args)], weight=1)
-        wcnf.append([encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
+        wcnf.append([encoding.sat_var_from_arg_name(argument, args),encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
+#        wcnf.append([encoding.sat_var_Pa_from_arg_name(argument, args)], weight=1)
         
 
     lbx = LBX(wcnf, use_cld=True, solver_name='g4')
@@ -303,7 +312,7 @@ def semistable_extension_enumeration(args, atts):
     for mcs in lbx.enumerate():
         lbx.block(mcs)
         extensions.append(get_extension_from_range(mcs,args))
-        print("THERE IS A PROBLEM")
+        print(f"THERE IS A PROBLEM - {get_extension_from_range(mcs,args)}")
     
     lbx.delete()
     return extensions
