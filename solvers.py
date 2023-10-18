@@ -45,6 +45,13 @@ def credulous_acceptability(args,atts,argname,semantics):
             return True, id_extension
         else:
             return False, id_extension
+
+    if semantics == "GR":
+        gr_extension = compute_grounded_extension(args,atts)
+        if argname in gr_extension:
+            return True, gr_extension
+        else:
+            return False, gr_extension
     
     if semantics ==  "PR":
         semantics = "AD"
@@ -143,11 +150,10 @@ def get_defended_set(args, atts, arg_set):
                     defended_against_all = False
             if defended_against_all:
                 defended.append(arg)
-        return defended + arg_set
+        return defended
         
 
 def compute_grounded_extension(args,atts):
-
     extension = []
     defended = get_defended_set(args, atts, extension)
 
@@ -157,21 +163,6 @@ def compute_grounded_extension(args,atts):
 
     return extension
     
-#    n_vars, clauses = get_encoding(args, atts,"CO")
-
-#    s = Solver(name='g4')
-#    for clause in clauses:
-#        s.add_clause(clause)
-
-#    print(f"clauses = {clauses}")
-
-#    assump = get_unattacked_arguments(args,atts)
-#    print(f"assumptions = {assump}")
-#    status, model = s.propagate(assumptions = assump)
-#    print(f"model = {model} - status = {status}")
-#    s.delete()
-#    return argset_from_model(model,args)
-
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
@@ -363,6 +354,13 @@ def skeptical_acceptability(args,atts,argname,semantics):
             return True, id_extension
         else:
             return False, id_extension
+
+    if semantics == "GR":
+        gr_extension = compute_grounded_extension(args,atts)
+        if argname in gr_extension:
+            return True, gr_extension
+        else:
+            return False, gr_extension
     
     n_vars, clauses = get_encoding(args, atts,semantics)
     arg_var = encoding.sat_var_from_arg_name(argname, args)
