@@ -407,7 +407,7 @@ def skeptical_acceptability(args,atts,argname,semantics):
         else:
             return False, id_extension
 
-    if semantics == "GR":
+    if semantics == "GR" or semantics == "CO":
         gr_extension = compute_grounded_extension(args,atts)
         if argname in gr_extension:
             return True, gr_extension
