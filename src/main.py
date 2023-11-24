@@ -11,7 +11,7 @@ if len(sys.argv) == 1:
     sys.exit("pygarg - A Python enGine for Argumentation\nv0.1.0\nJean-Guy Mailly, jean-guy.mailly@u-paris.fr")
 
 semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID", "SST"]
-problems_list = ["DC", "DS", "SE", "EE", "CE"]
+problems_list = ["DC", "DS", "SE", "EE", "CE", "VE"]
 formats_list = ["apx","dimacs"]
 
 def print_supported_problems():
@@ -52,6 +52,13 @@ split_task = task.split("-")
 problem = split_task[0]
 semantics = split_task[1]
 
+if problem == "VE":
+    print(argname)
+    sys.exit(f"Extension verification is not implemented yet.")
+
+if problem == "VE" and argname == "":
+    sys.exit(f"Missing arguments names for problem VE.")
+    
 if (problem == "DC" or problem == "DS") and argname == "":
     sys.exit(f"Missing argument name for problem {problem}.")
 
