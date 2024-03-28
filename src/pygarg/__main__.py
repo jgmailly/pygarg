@@ -1,4 +1,4 @@
-from dung import apx_parser, dimacs_parser, solver
+from pygarg.dung import apx_parser, dimacs_parser, solver
 import sys
 
 import argparse
