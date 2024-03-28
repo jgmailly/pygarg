@@ -3,7 +3,7 @@ from pysat.solvers import Solver
 from pysat.examples.lbx import LBX
 from pysat.formula import WCNF
 from pysat.formula import CNF
-import encoding
+from dung import encoding
 
 
 def get_attackers(args, atts, arg):

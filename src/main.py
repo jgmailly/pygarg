@@ -1,7 +1,5 @@
-import apx_parser
-import dimacs_parser
+from dung import apx_parser, dimacs_parser, solver
 import sys
-import solvers
 
 import argparse
 
