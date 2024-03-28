@@ -1,26 +1,26 @@
-### Functions for parsing an apx file
+# Functions for parsing an apx file
 
 import sys
 
 
-# Returns the name of a certain argument
-# identified in an apx line
 def parse_arg(apx_line):
+    """Provide the name of an argument identified in the apx file."""
     return apx_line[4:-2]
 
 
-# Returns the names of the arguments in a certain attack
-# identified in an apx line
 def parse_att(apx_line):
+    """Provide the names of arguments in an attack."""
     arg_names = apx_line[4:-2]
     return arg_names.split(",")
 
+
 def empty_line(apx_line):
+    """Check if a line is empty."""
     return apx_line == ""
 
-# Parses an apx file and returns the lists of
-# certain arguments, uncertain arguments, certain attacks and uncertain attacks
+
 def parse(filename):
+    """Parse an apx file and returns the lists of arguments and attacks."""
     with open(filename) as apxfile:
         apx_lines = apxfile.read().splitlines()
 
@@ -35,4 +35,3 @@ def parse(filename):
             sys.exit(f"Line cannot be parsed ({apx_line})")
 
     return args, atts
-

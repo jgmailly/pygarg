@@ -1,23 +1,24 @@
-### Functions for parsing a dimacs file
+# Functions for parsing a dimacs file
 
-import sys
 
-# Returns the number of arguments in the AF,
-# as defined in the p-line of the file
 def parse_p_line(dimacs_line):
+    """Provide the number of arguments in the AF from p-line of the file."""
     return int(dimacs_line[5:])
 
-# Checks whether a line is empty
+
 def empty_line(line):
+    """Check whether a line is empty."""
     return line == ""
 
-def parse_attack_line(dimacs_line):
-    split_line = dimacs_line.split(" ")
-    return [split_line[0],split_line[1]]
 
-# Parses a dimacs file and returns the lists of
-# arguments and attacks
+def parse_attack_line(dimacs_line):
+    """Provide the arguments involved in an attack."""
+    split_line = dimacs_line.split(" ")
+    return [split_line[0], split_line[1]]
+
+
 def parse(filename):
+    """Parse a dimacs file and returns the lists of arguments and attacks."""
     with open(filename) as dimacsfile:
         dimacs_lines = dimacsfile.read().splitlines()
 
@@ -32,4 +33,3 @@ def parse(filename):
             atts.append(parse_attack_line(dimacs_line))
 
     return args, atts
-

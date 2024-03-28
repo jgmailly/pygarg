@@ -1,18 +1,23 @@
 import apx_parser
 import dimacs_parser
-import time
 import sys
 import solvers
 
 import argparse
 
+software_version = "v0.1.0"
+author_id = "Jean-Guy Mailly, jean-guy.mailly@irit.fr"
 
 if len(sys.argv) == 1:
-    sys.exit("pygarg - A Python enGine for Argumentation\nv0.1.0\nJean-Guy Mailly, jean-guy.mailly@u-paris.fr")
+    error_message = "pygarg - A Python enGine for Argumentation\n"
+    error_message += software_version + "\n"
+    error_message += author_id
+    sys.exit(error_message)
 
-semantics_list = ["CF", "AD", "ST", "CO","PR","GR", "ID", "SST"]
+semantics_list = ["CF",  "AD",  "ST",  "CO", "PR", "GR", "ID", "SST"]
 problems_list = ["DC", "DS", "SE", "EE", "CE"]
-formats_list = ["apx","dimacs"]
+formats_list = ["apx", "dimacs"]
+
 
 def print_supported_problems():
     print("[", end='')
@@ -23,13 +28,13 @@ def print_supported_problems():
                 print(",", end='')
     print("]")
 
+
 argparser = argparse.ArgumentParser(prog='pygarg', description='A Python enGine for Argumentation: this program solves most classical problems in abstract argumentation, mainly thanks to calls to SAT solvers.')
 argparser.add_argument("-p", "--problem", help=f"describes the problem to solve. Must be XX-YY with XX in {problems_list} and YY in {semantics_list}.")
 argparser.add_argument("-fo", "--format", help=f"format of the input file. Must be in {formats_list}.", default="dimacs")
 argparser.add_argument("-pr", "--problems", help="prints the list of supported problems.", action="store_true")
-#argparser.add_argument("-v", "--verbose", help="increase output verbosity.", action="store_true")
-argparser.add_argument("-f", "--filename", help=f"the input file describing an AF.")
-argparser.add_argument("-a", "--argname", help=f"name of the query argument for acceptability problems.")
+argparser.add_argument("-f", "--filename", help="the input file describing an AF.")
+argparser.add_argument("-a", "--argname", help="name of the query argument for acceptability problems.")
 cli_args = argparser.parse_args()
 
 if cli_args.problems:
@@ -41,7 +46,7 @@ if not cli_args.filename:
 
 if not cli_args.problem:
     sys.exit("Missing problem name.")
-    
+
 argname = ""
 if cli_args.argname:
     argname = cli_args.argname
@@ -55,48 +60,50 @@ semantics = split_task[1]
 if (problem == "DC" or problem == "DS") and argname == "":
     sys.exit(f"Missing argument name for problem {problem}.")
 
-#verbose = False
-#if cli_args.verbose :
-#    verbose = True
-
 if problem not in problems_list:
-    sys.exit(f"Problem {problem} not recognized. Supported problems: {problems_list}.")
+    error_message = f"Problem {problem} not recognized. "
+    error_message += f"Supported problems: {problems_list}."
+    sys.exit(error_message)
 
 if semantics not in semantics_list:
-    sys.exit(f"Semantics {semantics} not recognized. Supported problems: {semantics_list}.")
+    error_message = f"Semantics {semantics} not recognized. "
+    error_message += f"Supported problems: {semantics_list}."
+    sys.exit(error_message)
 
-args, atts = [],[]
+args, atts = [], []
 if cli_args.format == "apx":
     args, atts = apx_parser.parse(af_file)
 elif cli_args.format == "dimacs":
     args, atts = dimacs_parser.parse(af_file)
 nb_args = len(args)
 
-    
+
 if problem == "DC":
-    result, extension = solvers.credulous_acceptability(args,atts,argname,semantics)
-    if result :
+    result, extension = solvers.credulous_acceptability(args, atts,
+                                                        argname, semantics)
+    if result:
         print("YES")
         solvers.print_witness_extension(extension)
     else:
         print("NO")
 elif problem == "DS":
-    result, extension = solvers.skeptical_acceptability(args,atts,argname,semantics)
-    if result :
+    result, extension = solvers.skeptical_acceptability(args, atts,
+                                                        argname, semantics)
+    if result:
         print("YES")
     else:
         print("NO")
         solvers.print_witness_extension(extension)
 elif problem == "CE":
-    print(solvers.extension_counting(args,atts,semantics))
+    print(solvers.extension_counting(args, atts, semantics))
 elif problem == "SE":
-    extension = solvers.compute_some_extension(args,atts,semantics)
+    extension = solvers.compute_some_extension(args, atts, semantics)
     if extension == "NO":
         print("NO")
     else:
         solvers.print_witness_extension(extension)
 elif problem == "EE":
-    extensions = solvers.extension_enumeration(args,atts,semantics)
+    extensions = solvers.extension_enumeration(args, atts, semantics)
     if extensions == []:
         print("NO")
     else:
