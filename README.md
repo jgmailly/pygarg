@@ -28,3 +28,32 @@ options:
   -a ARGNAME, --argname ARGNAME
                         name of the query argument for acceptability problems.
 ```
+
+## Importing pygarg features
+You can import pygarg into your own Python script and use its features as follows.
+
+### Text file parsers
+```python
+import pygarg.dung.apx_parser
+import pygarg.dung.dimacs_parser
+
+args, atts = pygarg.dung.apx_parser.parse("test.apx")
+args2, atts2 = pygarg.dung.dimacs_parser.parse("test.dimacs")
+```
+
+### Extension-based reasoning
+```python
+import pygarg.dung.solver
+
+for sem in ['DC', 'DS', 'SE', 'EE', 'CE']:
+    for argname in args:
+        pygarg.dung.solver.credulous_acceptability(args, atts, argname, sem) 
+	pygarg.dung.solver.skeptical_acceptability(args, atts, argname, sem) 
+    pygarg.dung.solver.compute_some_extension(args, atts, sem) 
+    pygarg.dung.solver.extension_enumeration(args, atts, sem) 
+    pygarg.dung.solver.extension_counting(args, atts, sem)
+```
+
+
+
+
