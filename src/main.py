@@ -3,7 +3,7 @@ import sys
 
 import argparse
 
-software_version = "v0.1.0"
+software_version = "v0.1.1"
 author_id = "Jean-Guy Mailly, jean-guy.mailly@irit.fr"
 
 if len(sys.argv) == 1:
@@ -77,33 +77,33 @@ nb_args = len(args)
 
 
 if problem == "DC":
-    result, extension = solvers.credulous_acceptability(args, atts,
+    result, extension = solver.credulous_acceptability(args, atts,
                                                         argname, semantics)
     if result:
         print("YES")
-        solvers.print_witness_extension(extension)
+        solver.print_witness_extension(extension)
     else:
         print("NO")
 elif problem == "DS":
-    result, extension = solvers.skeptical_acceptability(args, atts,
+    result, extension = solver.skeptical_acceptability(args, atts,
                                                         argname, semantics)
     if result:
         print("YES")
     else:
         print("NO")
-        solvers.print_witness_extension(extension)
+        solver.print_witness_extension(extension)
 elif problem == "CE":
-    print(solvers.extension_counting(args, atts, semantics))
+    print(solver.extension_counting(args, atts, semantics))
 elif problem == "SE":
-    extension = solvers.compute_some_extension(args, atts, semantics)
+    extension = solver.compute_some_extension(args, atts, semantics)
     if extension == "NO":
         print("NO")
     else:
-        solvers.print_witness_extension(extension)
+        solver.print_witness_extension(extension)
 elif problem == "EE":
-    extensions = solvers.extension_enumeration(args, atts, semantics)
+    extensions = solver.extension_enumeration(args, atts, semantics)
     if extensions == []:
         print("NO")
     else:
         for extension in extensions:
-            solvers.print_witness_extension(extension)
+            solver.print_witness_extension(extension)
