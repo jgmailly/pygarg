@@ -78,6 +78,9 @@ def credulous_acceptability(args, atts, argname, semantics):
     argname -- the query argument
     semantics -- the semantics
     """
+    if args == []:
+        return False, None
+
     if semantics == "ID":
         id_extension = compute_ideal_extension(args, atts)
         if argname in id_extension:
@@ -329,6 +332,9 @@ def compute_some_extension(args, atts, semantics):
     atts -- the attacks in the AF
     semantics -- the chosen semantics
     """
+    if args == []:
+        return []
+
     if semantics == "PR":
         return compute_some_preferred_extension(args, atts)
 
@@ -484,6 +490,9 @@ def extension_enumeration(args, atts, semantics):
     atts -- the attacks in the AF
     semantics -- the chosen semantics
     """
+    if args == []:
+        return [[]]
+
     if semantics == "PR":
         return preferred_extension_enumeration(args, atts)
     if semantics == "ID":
@@ -514,7 +523,7 @@ def extension_counting(args, atts, semantics):
     atts -- the attacks in the AF
     semantics -- the chosen semantics
     """
-    if semantics == "ID" or semantics == "GR":
+    if args == [] or semantics == "ID" or semantics == "GR":
         return 1
     return len(extension_enumeration(args, atts, semantics))
 
@@ -536,6 +545,9 @@ def skeptical_acceptability(args, atts, argname, semantics):
     argname -- the query argument
     semantics -- the semantics
     """
+    if args == []:
+        return False, []
+
     if semantics == "PR":
         return preferred_skeptical_acceptability(args, atts, argname)
 
