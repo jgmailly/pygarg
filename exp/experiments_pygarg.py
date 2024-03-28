@@ -1,5 +1,4 @@
-import solvers
-import apx_parser
+from pygarg.dung import solver, apx_parser
 import sys
 import time
 
@@ -10,7 +9,7 @@ args, atts = apx_parser.parse(sys.argv[1])
 sem = sys.argv[2]
 
 starting_time = time.time()
-solvers.extension_enumeration(args, atts, sem)
+solver.extension_enumeration(args, atts, sem)
 ending_time = time.time()
 duration = (ending_time - starting_time) * 1000
     
