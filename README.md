@@ -4,6 +4,11 @@ This program solves most classical problems in abstract argumentation, mainly th
 This software is still in development. Any suggestion of improvement
 or bug report is welcome: jean-guy.mailly@irit.fr.
 
+pygarg is also available on PyPI (https://pypi.org/project/pygarg/) and can be installed with the command-line:
+```bash
+pip install pygarg
+```
+
 ## Command-line Interface
 The command-line interface of the current version is as follows:
 ```bash
