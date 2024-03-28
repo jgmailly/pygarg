@@ -45,7 +45,7 @@ args2, atts2 = pygarg.dung.dimacs_parser.parse("test.dimacs")
 ```python
 import pygarg.dung.solver
 
-for sem in ['DC', 'DS', 'SE', 'EE', 'CE']:
+for sem in ['CF', 'AD', 'ST', 'CO', 'PR', 'GR', 'ID', 'SST']:
     for argname in args:
         pygarg.dung.solver.credulous_acceptability(args, atts, argname, sem) 
 	pygarg.dung.solver.skeptical_acceptability(args, atts, argname, sem) 
