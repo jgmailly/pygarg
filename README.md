@@ -1,7 +1,7 @@
 # pygarg: A Python enGine for Argumentation
 This program solves most classical problems in abstract argumentation, mainly thanks to calls to SAT solvers. Calls to SAT solvers are made through the PySAT API: https://pysathq.github.io/installation/.
 
-This software is still in development. Any suggestion of improvement or bug report is welcome: jean-guy.mailly@irit.fr. This work is supported by the project [AGGREEY](https://aggreey.github.io/diffusion.html).
+This software is still in development. Any suggestion of improvement or bug report is welcome: jean-guy.mailly@irit.fr. This work is supported by the project [AGGREEY](https://aggreey.github.io/).
 
 pygarg is also available on PyPI (https://pypi.org/project/pygarg/) and can be installed with the command-line:
 ```bash
