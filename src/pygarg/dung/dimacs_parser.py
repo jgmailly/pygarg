@@ -29,7 +29,7 @@ def parse(filename):
         if dimacs_line[0] == "p":
             nb_args = parse_p_line(dimacs_line)
             args = [str(i+1) for i in range(nb_args)]
-        elif not empty_line(dimacs_line) and dimacs_line[0] != "#c":
+        elif not empty_line(dimacs_line) and dimacs_line[0] != "#":
             atts.append(parse_attack_line(dimacs_line))
 
     return args, atts

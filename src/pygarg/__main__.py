@@ -3,7 +3,7 @@ import sys
 
 import argparse
 
-software_version = "v1.0.1"
+software_version = "v1.0.2"
 author_id = "Jean-Guy Mailly, jean-guy.mailly@irit.fr"
 
 if len(sys.argv) == 1:
